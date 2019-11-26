@@ -176,30 +176,27 @@ if __name__ == "__main__":
         "filepath": "",
         "image_width": 0,
         "image_height": 0,
-        "objects": [{
-            "class": "",
-            "xmin": 0,
-            "ymin": 0,
-            "xmax": 0,
-            "ymax": 0
-        },
+        "objects": [{"class": "",
+                     "xmin": 0,
+                     "ymin": 0,
+                     "xmax": 0,
+                     "ymax": 0
+                     },
 
-            {
-                "class": "",
-                "xmin": 0,
-                "ymin": 0,
-                "xmax": 0,
-                "ymax": 0
-            },
-            {
-                "class": "",
-                "xmin": 0,
-                "ymin": 0,
-                "xmax": 0,
-                "ymax": 0
-            }
-        ]
-    },
+                    {"class": "",
+                     "xmin": 0,
+                     "ymin": 0,
+                     "xmax": 0,
+                     "ymax": 0
+                     },
+
+                    {"class": "",
+                     "xmin": 0,
+                     "ymin": 0,
+                     "xmax": 0,
+                     "ymax": 0
+                     }]
+        },
 
         {
             "filepath": "",
