@@ -172,10 +172,12 @@ class DetectionAnnotations(_BaseAnnoComponents):
 
 if __name__ == "__main__":
     # normal case
-    case1 = [{"filepath": "",
-              "image_width": 0,
-              "image_height": 0,
-              "objects":[
+    case1 = [
+                {
+                    "filepath": "",
+                    "image_width": 0,
+                    "image_height": 0,
+                    "objects": [
                             {
                                 "class": "",
                                 "xmin": 0,
