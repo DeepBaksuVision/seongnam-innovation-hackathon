@@ -44,10 +44,10 @@ class AnnotationAnalyzer:
 
         Returns:
             (Dict) : each classes bbox distribution as follow
-                    {
-                        "(name of class)" : [[normalized bbox width (float), normalized bbox height], ...]
-                        ...
-                    }
+            {
+                "(name of class)" : [[normalized bbox width (float), normalized bbox height], ...]
+                ...
+            }
         """
 
         class_bbox_distrib = dict()

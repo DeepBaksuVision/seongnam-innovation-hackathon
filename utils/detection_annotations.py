@@ -36,7 +36,7 @@ class _BaseAnnoComponents:
         info_keys = info.keys()
         validate_elements = [KEY in info_keys for KEY in self.REQUIRED_KEYS]
         if len(validate_elements) != sum(validate_elements):
-            indices = [i for i, is_valid in enumerate(validate_elements) if is_valid == False]
+            indices = [i for i, is_valid in enumerate(validate_elements) if is_valid is False]
             missing_keys = [self.REQUIRED_KEYS[idx] for idx in indices]
             raise RuntimeError("Must contain all required key, "
                                "missing key are `{}`".format(",".join(missing_keys)))
@@ -65,10 +65,10 @@ class DetectionObject(_BaseAnnoComponents):
         super(DetectionObject, self).__init__(object_info, self.REQUIRED_KEYS)
 
         self.CLASS: str = str(object_info["class"])
-        self.XMIN: int  = int(object_info["xmin"])
-        self.YMIN: int  = int(object_info["ymin"])
-        self.XMAX: int  = int(object_info["xmax"])
-        self.YMAX: int  = int(object_info["ymax"])
+        self.XMIN: int = int(object_info["xmin"])
+        self.YMIN: int = int(object_info["ymin"])
+        self.XMAX: int = int(object_info["xmax"])
+        self.YMAX: int = int(object_info["ymax"])
 
     def dump(self):
         print("\t\tclass:\t{}".format(self.CLASS))
@@ -179,11 +179,11 @@ if __name__ == "__main__":
                     "image_height": 0,
                     "objects": [
                                     {
-                                        "class" : "",
-                                         "xmin" : 0,
-                                         "ymin" : 0,
-                                         "xmax" : 0,
-                                         "ymax" : 0
+                                        "class": "",
+                                         "xmin": 0,
+                                         "ymin": 0,
+                                         "xmax": 0,
+                                         "ymax": 0
                                     },
 
 

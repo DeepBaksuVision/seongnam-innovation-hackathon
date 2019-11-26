@@ -25,16 +25,15 @@ with open(CSV_FILEPATH) as csvfile:
         xmax = int(row[6])
         ymax = int(row[7])
 
-
         annotations.append({"filepath": filepath,
                             "image_width": img_width,
                             "image_height": img_height,
                             "objects": [{
                                 "class": class_label,
-                                "xmin" : xmin,
-                                "ymin" : ymin,
-                                "xmax" : xmax,
-                                "ymax" : ymax
+                                "xmin": xmin,
+                                "ymin": ymin,
+                                "xmax": xmax,
+                                "ymax": ymax
                             }]})
 
 detection_anno = DetectionAnnotations(annotations)
@@ -42,4 +41,3 @@ anno_analyzer = AnnotationAnalyzer(detection_anno)
 anno_analyzer.show_class_distribution(is_save=False)
 anno_analyzer.show_bbox_distribution(each_classe=True, is_save=False)
 anno_analyzer.show_bbox_distribution(each_classe=False, is_save=False)
-
