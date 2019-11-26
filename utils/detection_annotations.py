@@ -80,8 +80,7 @@ class DetectionObject(_BaseAnnoComponents):
 
 class DetectionFile(_BaseAnnoComponents):
 
-    def __init__(self,
-                 files_info: Dict) -> None:
+    def __init__(self, files_info: Dict) -> None:
         """
         Interface of Detection Image property
 

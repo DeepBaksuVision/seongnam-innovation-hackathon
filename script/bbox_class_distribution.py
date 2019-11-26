@@ -13,13 +13,13 @@ numline = len(file.readlines())
 with open(CSV_FILEPATH) as csvfile:
     csvreader = csv.reader(csvfile)
 
-    for i, row in enumerate(tqdm(csvreader, total=numline)):
-        if i == 0:
+    for idx, row in enumerate(tqdm(csvreader, total=numline)):
+        if idx == 0:
             continue
         filepath = str(row[0])
         img_width = int(row[1])
         img_height = int(row[2])
-        cls = str(row[3])
+        class_label = str(row[3])
         xmin = int(row[4])
         ymin = int(row[5])
         xmax = int(row[6])
@@ -30,7 +30,7 @@ with open(CSV_FILEPATH) as csvfile:
                             "image_width": img_width,
                             "image_height": img_height,
                             "objects": [{
-                                "class": cls,
+                                "class": class_label,
                                 "xmin" : xmin,
                                 "ymin" : ymin,
                                 "xmax" : xmax,
@@ -39,7 +39,7 @@ with open(CSV_FILEPATH) as csvfile:
 
 detection_anno = DetectionAnnotations(annotations)
 anno_analyzer = AnnotationAnalyzer(detection_anno)
-anno_analyzer.show_class_distribution(savefig=False)
-anno_analyzer.show_bbox_distribution(integrated=True, savefig=False)
-anno_analyzer.show_bbox_distribution(savefig=False)
+anno_analyzer.show_class_distribution(is_save=False)
+anno_analyzer.show_bbox_distribution(each_classe=True, is_save=False)
+anno_analyzer.show_bbox_distribution(each_classe=False, is_save=False)
 

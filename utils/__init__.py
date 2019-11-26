@@ -1,2 +1,2 @@
-from utils.bbox_distribution import *
-from utils.detection_annotations import *
+from utils.bbox_distribution import AnnotationAnalyzer
+from utils.detection_annotations import DetectionAnnotations
