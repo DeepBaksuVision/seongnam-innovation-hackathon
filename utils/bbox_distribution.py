@@ -52,7 +52,7 @@ class AnnotationAnalyzer:
 
         class_bbox_distrib = dict()
         for class_label in classes:
-            class_bbox_distrib.update({class_label:[]})
+            class_bbox_distrib.update({class_label: []})
 
         obj_files = [FILE for FILE in anno.FILES]
         for obj_file in obj_files:
@@ -87,12 +87,12 @@ class AnnotationAnalyzer:
             plt.savefig("Class histogram.png")
         plt.show()
 
-    def show_bbox_distribution(self, each_classe: bool = True, is_save: bool = True) -> None:
+    def show_bbox_distribution(self, each_class: bool = True, is_save: bool = True) -> None:
         """
         Display BBox distrubition and save figure
 
         Args:
-            each_classe (Bool) : if True, display bbox distribution about each classes
+            each_class (Bool) : if True, display bbox distribution about each classes
                                   False, display bbox distribution about all classes
 
             is_save (Bool) : if True, save figure about bbox distribution
@@ -101,13 +101,13 @@ class AnnotationAnalyzer:
             (None)
         """
 
-        if not each_classe:
+        if not each_class:
             plt.figure()
 
         for class_label in self.classes:
             distrib_reshape = np.transpose(np.asarray(self.class_bbox_distrib[class_label]))
 
-            if each_classe:
+            if each_class:
                 plt.figure()
 
             plt.scatter(distrib_reshape[0], distrib_reshape[1], label=class_label)
@@ -115,13 +115,13 @@ class AnnotationAnalyzer:
             plt.ylim([0, 1])
             plt.title(class_label)
 
-            if each_classe:
+            if each_class:
                 if is_save:
                     plt.savefig("".join([class_label, ".png"]))
                 plt.legend()
                 plt.show()
 
-        if not each_classe:
+        if not each_class:
             if is_save:
                 plt.savefig("".join(["Whole Classes", ".png"]))
             plt.legend()
@@ -183,7 +183,9 @@ if __name__ == "__main__":
     print(analzer.classes)
     # [2, 1, 1]
     print(analzer.class_frequency)
-    # {'a': [[0.0375, 0.1814814814814815], [0.046875, 0.6722222222222223]], 'b': [[0.06979166666666667, 0.4222222222222222]], 'c': [[0.021354166666666667, 0.4675925925925926]]}
+    # {'a': [[0.0375, 0.1814814814814815], [0.046875, 0.6722222222222223]],
+    # 'b': [[0.06979166666666667, 0.4222222222222222]],
+    # 'c': [[0.021354166666666667, 0.4675925925925926]]}
     print(analzer.class_bbox_distrib)
-    analzer.show_bbox_distribution(each_classe=True, is_save=False)
-    analzer.show_bbox_distribution(each_classe=False, is_save=False)
+    analzer.show_bbox_distribution(each_class=True, is_save=False)
+    analzer.show_bbox_distribution(each_class=False, is_save=False)

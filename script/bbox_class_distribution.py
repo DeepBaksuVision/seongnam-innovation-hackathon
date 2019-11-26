@@ -39,5 +39,5 @@ with open(CSV_FILEPATH) as csvfile:
 detection_anno = DetectionAnnotations(annotations)
 anno_analyzer = AnnotationAnalyzer(detection_anno)
 anno_analyzer.show_class_distribution(is_save=False)
-anno_analyzer.show_bbox_distribution(each_classe=True, is_save=False)
-anno_analyzer.show_bbox_distribution(each_classe=False, is_save=False)
+anno_analyzer.show_bbox_distribution(each_class=True, is_save=False)
+anno_analyzer.show_bbox_distribution(each_class=False, is_save=False)

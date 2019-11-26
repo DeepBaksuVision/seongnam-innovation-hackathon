@@ -172,144 +172,126 @@ class DetectionAnnotations(_BaseAnnoComponents):
 
 if __name__ == "__main__":
     # normal case
-    case1 = [
-                {
-                    "filepath": "",
-                    "image_width": 0,
-                    "image_height": 0,
-                    "objects": [
-                                    {
-                                        "class": "",
-                                         "xmin": 0,
-                                         "ymin": 0,
-                                         "xmax": 0,
-                                         "ymax": 0
-                                    },
-
-
-                                    {
-                                        "class": "",
-                                        "xmin": 0,
-                                        "ymin": 0,
-                                        "xmax": 0,
-                                        "ymax": 0
-                                    },
-                                    {
-                                        "class": "",
-                                        "xmin": 0,
-                                        "ymin": 0,
-                                        "xmax": 0,
-                                        "ymax": 0
-                                    }
-                                ]
-                },
-
-                {
-                    "filepath": "",
-                    "image_width": 0,
-                    "image_height": 0,
-                    "objects": [
-                        {
-                            "class": "",
-                            "xmin": 0,
-                            "ymin": 0,
-                            "xmax": 0,
-                            "ymax": 0
-                        }
-                    ]
-                }
-            ]
-
-    # abnormal case2. missing filepath
-    case2 = [
-        {
-            "image_width": 0,
-            "image_height": 0,
-            "objects": [
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                },
-
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                },
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                }
-            ]
+    case1 = [{
+        "filepath": "",
+        "image_width": 0,
+        "image_height": 0,
+        "objects": [{
+            "class": "",
+            "xmin": 0,
+            "ymin": 0,
+            "xmax": 0,
+            "ymax": 0
         },
+
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            },
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }
+        ]
+    },
 
         {
             "filepath": "",
             "image_width": 0,
             "image_height": 0,
-            "objects": [
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                }
-            ]
+            "objects": [{
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }]
+        }
+    ]
+
+    # abnormal case2. missing filepath
+    case2 = [{
+        "image_width": 0,
+        "image_height": 0,
+        "objects": [{
+            "class": "",
+            "xmin": 0,
+            "ymin": 0,
+            "xmax": 0,
+            "ymax": 0
+        },
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            },
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }]
+    },
+        {
+            "filepath": "",
+            "image_width": 0,
+            "image_height": 0,
+            "objects": [{
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }]
         }
     ]
 
     # abnormal case3 missing `class`
-    case3 = [
-        {
-            "image_width": 0,
-            "image_height": 0,
-            "objects": [
-                {
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                },
-
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                },
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                }
-            ]
+    case3 = [{
+        "image_width": 0,
+        "image_height": 0,
+        "objects": [{
+            "xmin": 0,
+            "ymin": 0,
+            "xmax": 0,
+            "ymax": 0
         },
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
 
+            },
+            {
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }]
+    },
         {
             "filepath": "",
             "image_width": 0,
             "image_height": 0,
-            "objects": [
-                {
-                    "class": "",
-                    "xmin": 0,
-                    "ymin": 0,
-                    "xmax": 0,
-                    "ymax": 0
-                }
-            ]
+            "objects": [{
+                "class": "",
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": 0,
+                "ymax": 0
+            }]
         }
     ]
 
