@@ -1,12 +1,283 @@
-import numpy as np
+import itertools
 import matplotlib.pyplot as plt
+import numpy as np
 from collections import Counter
+from sklearn.linear_model import LinearRegression
 from typing import List, Tuple, Dict
-from utils.annotation_interfaces import DetectionAnnotations
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
 from pyclustering.utils.metric import type_metric, distance_metric
 from pyclustering.cluster import cluster_visualizer
+from utils.annotation_interfaces import DetectionAnnotations
+
+
+class BBoxDistributionAnalyzer:
+
+    def __init__(self, anno: DetectionAnnotations, distance_measure: str = 'l2'):
+        """
+
+        Args:
+            anno (DetectionAnnotations): DetectionAnnotations object
+            distance_measure (str): similarity measure
+        """
+
+        classes_list = self._collect_classes(anno)
+        self.anno = anno
+        self.classes_list = classes_list
+        self.bbox_data = self._collect_bbox(anno, classes_list)
+        self.metric = None
+        self.distance_measure = distance_measure
+        self.similarity_matrix = None
+        self.analysis_result = None
+
+        if distance_measure == "l1":
+            self.metric = self._manhattan_distance
+        elif distance_measure == "l2":
+            self.metric = self._euclidean_distance
+        elif distance_measure == "inner_product":
+            self.metric = self._inner_product
+        elif distance_measure == "cosine_similarity":
+            self.metric = self._cosine_similarity
+        else:
+            raise RuntimeError("Not supported {} metric".format(distance_measure))
+
+    def fit(self):
+        self.analysis_result = self._distribution_modeling(self.classes_list, self.bbox_data)
+        self.similarity_matrix = self._similarity_intra_classes(self.analysis_result)
+
+    def show_similarity_matrix(self, is_save: bool = False):
+        """
+        Display and save figure about similarity matrix
+
+        Args:
+            (bool) is_save : if True, save figure
+                                False, not save figure
+
+        Returns:
+            (None)
+        """
+        if self.similarity_matrix is None:
+            self.fit()
+
+        similarity_matrix = self.similarity_matrix.astype('float')
+
+        plt.figure()
+        plt.imshow(similarity_matrix, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title("Similarity Matrix - {}".format(self.distance_measure))
+        plt.colorbar()
+        tick_mark = np.arange(len(self.classes_list))
+        plt.xticks(tick_mark, self.classes_list, rotation=45)
+        plt.yticks(tick_mark, self.classes_list)
+
+        fmt = '.2f'
+        thresh = similarity_matrix.max() / 2.
+        for i, j in itertools.product(range(similarity_matrix.shape[0]), range(similarity_matrix.shape[1])):
+            plt.text(j, i, format(similarity_matrix[i, j], fmt), horizontalalignment="center",
+                     color="white" if similarity_matrix[i, j] > thresh else "black")
+
+        plt.ylabel('Classes')
+        plt.xlabel('Classes')
+        if is_save:
+            plt.savefig("BBox_Distribution_Similarity_Matrix-{}.png".format(self.distance_measure))
+        plt.show()
+
+    def report_modeling(self, is_save):
+        """
+        Display and save figure about each class box distribution and linear regression result
+
+        Args:
+            (bool) is_save : if True, save figure
+                                False, not save figure
+
+        Returns:
+            (None)
+        """
+
+        float_subplotsize = np.sqrt(len(self.classes_list))
+        floor_subplotsize = np.floor(float_subplotsize)
+
+        if (float_subplotsize - floor_subplotsize) != 0:
+            floor_subplotsize += 1
+
+        subplotsize = [int(floor_subplotsize) for _ in range(2)]
+
+        plt.figure()
+        for idx, class_label in enumerate(self.classes_list):
+
+            slope = self.analysis_result[class_label]['slope']
+            bias = self.analysis_result[class_label]['bias']
+
+            x = np.arange(0, 1, 0.1)
+            y = list()
+            for _x in x:
+                y.append(bias + (slope * _x))
+
+            plt.subplot(subplotsize[0], subplotsize[1], idx + 1)
+            bbox_reshape = np.transpose(np.asarray(self.bbox_data[class_label]))
+            plt.scatter(bbox_reshape[0], bbox_reshape[1], label=class_label)
+            plt.plot(x, y, color='r')
+            plt.xlim([0, 1])
+            plt.ylim([0, 1])
+            plt.legend()
+            plt.title(class_label)
+
+        if is_save is True:
+            plt.savefig("each_Classes.png")
+        plt.show()
+
+    @staticmethod
+    def _distribution_modeling(classes_list, bbox_data) -> Dict:
+        """
+
+        Args:
+            classes_list (List) : classes name
+            bbox_data (Dict) : bbox information as each classes
+
+        Returns:
+            (Dict) : result of Linear Regression as following
+
+                    {
+                        "classes" : {
+                                        "score": (List), coefficient of determination
+                                        "slope": (List),
+                                        "bias": (List),
+                                        "vec": (List), (x, y) vector when x is 1.0
+                            }
+                        ...
+                    }
+        """
+
+        analysis_result = dict()
+        for classes in classes_list:
+            analysis_result.update({classes: {}})
+
+        for classes in classes_list:
+            data = np.transpose(np.asarray(bbox_data[classes]))
+            x = data[0].reshape(-1, 1)
+            y = data[1]
+            model = LinearRegression().fit(x, y)
+            score = model.score(x, y)
+            slope = model.coef_
+            bias = model.intercept_
+            vec_x = np.array([[1.0]])
+            vec_y = model.predict(vec_x)
+
+            analysis_result[classes] = {"score": score,
+                                        "slope": slope[0],
+                                        "bias": bias,
+                                        "vec": [vec_x[0][0], vec_y[0]]}
+
+        return analysis_result
+
+    def _similarity_intra_classes(self, analysis_result: Dict) -> np.ndarray:
+        """
+        Calculate similarity intra classes distribution
+
+        Args:
+            analysis_result (Dict): result of Linear Regression as following
+
+                    {
+                        "classes" : {
+                                        "score": (List), coefficient of determination
+                                        "slope": (List),
+                                        "bias": (List),
+                                        "vec": (List), (x, y) vector when x is 1.0
+                            }
+                        ...
+                    }
+
+        Returns:
+            (np.ndarray) : similarity matrix like a confusion matrix
+        """
+
+        similarity_matrix = []
+
+        for source_classes in self.classes_list:
+            source_vec = self._unit_vector(np.asarray(analysis_result[source_classes]["vec"]))
+
+            rows = list()
+            for target_classes in self.classes_list:
+                target_vec = self._unit_vector(np.asarray(analysis_result[target_classes]["vec"]))
+                similarity_score = self.metric(source_vec, target_vec)
+                rows.append(similarity_score)
+            similarity_matrix.append(rows)
+
+        similarity_matrix = np.asarray(similarity_matrix)
+
+        return similarity_matrix
+
+    @staticmethod
+    def _unit_vector(vector: np.ndarray) -> np.ndarray:
+        return vector / np.linalg.norm(vector, 2)
+
+    # Distance Measure
+    @staticmethod
+    def _inner_product(source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
+        return np.inner(source_vector, target_vector)
+
+    @staticmethod
+    def _manhattan_distance(source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
+        return np.abs(source_vector[0] - target_vector[0]) + np.abs(source_vector[1] - target_vector[1])
+
+    @staticmethod
+    def _euclidean_distance(source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
+        return np.sqrt(
+            np.power(source_vector[0] - target_vector[0], 2) +
+            np.power(source_vector[1] - target_vector[1], 2))
+
+    def _cosine_similarity(self, source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
+        return self._inner_product(source_vector, target_vector) / \
+               np.linalg.norm(source_vector, 2) * np.linalg.norm(target_vector, 2)
+
+    @staticmethod
+    def _collect_classes(anno: DetectionAnnotations) -> List:
+        objs = sum([FILE.OBJECTS for FILE in anno.FILES], [])
+        classes_info = Counter([obj.CLASS for obj in objs])
+
+        return list(classes_info.keys())
+
+    def _collect_bbox(self, anno: DetectionAnnotations, classes_list: List) -> Dict:
+        """
+        Args:
+            anno (DetectionAnnotations) : DetectionAnnotations object
+            classes_list (List) : classes names
+
+        Returns:
+            (Dict) : each classes bbox distribution as follow
+            {
+                "(name of class)" : [[normalized bbox width (float), normalized bbox height], ...]
+                ...
+            }
+        """
+
+        class_bbox = dict()
+        for class_label in classes_list:
+            class_bbox.update({class_label: []})
+
+        obj_files = [FILE for FILE in anno.FILES]
+        for obj_file in obj_files:
+            for obj in obj_file.OBJECTS:
+                class_bbox[obj.CLASS].append(self._bbox_normalize(obj_file.IMAGE_WIDTH,
+                                                                  obj_file.IMAGE_HEIGHT,
+                                                                  obj.XMIN,
+                                                                  obj.YMIN,
+                                                                  obj.XMAX,
+                                                                  obj.YMAX))
+        return class_bbox
+
+    @staticmethod
+    def _bbox_normalize(image_width: int,
+                        image_height: int,
+                        xmin: int,
+                        ymin: int,
+                        xmax: int,
+                        ymax: int) -> List:
+
+        bbox_w = xmax - xmin
+        bbox_h = ymax - ymin
+        norm_w = bbox_w / image_width
+        norm_h = bbox_h / image_height
+        return [norm_w, norm_h]
 
 
 class BBoxDimensionAnalyzer:
@@ -23,26 +294,28 @@ class BBoxDimensionAnalyzer:
             num_cetroid : number of centroid for kmeans
             distance_measure : distance measure of kemans
         """
-
+        classes_list = self._collect_classes(anno)
         self.anno = anno
-        self.classes_list = self._collect_classes()
-        self.bbox_data = self._collect_bbox()
+        self.classes_list = classes_list
+        self.bbox_data = self._collect_bbox(anno, classes_list)
         self.number_of_centroid = num_cetroid
         self.distance_measure = distance_measure
         self.kmeans_result = None
 
         # TODO should be implementation about calc similarity bbox distribution & merge
 
-    def _collect_classes(self) -> List:
-        objs = sum([FILE.OBJECTS for FILE in self.anno.FILES], [])
+    @staticmethod
+    def _collect_classes(anno: DetectionAnnotations) -> List:
+        objs = sum([FILE.OBJECTS for FILE in anno.FILES], [])
         classes_info = Counter([obj.CLASS for obj in objs])
 
         return list(classes_info.keys())
 
-    def _collect_bbox(self) -> Dict:
+    def _collect_bbox(self, anno: DetectionAnnotations, classes_list: List) -> Dict:
         """
         Args:
-            (None)
+            anno (DetectionAnnotations) : DetectionAnnotations object
+            classes_list (List) : classes names
 
         Returns:
             (Dict) : each classes bbox distribution as follow
@@ -53,10 +326,10 @@ class BBoxDimensionAnalyzer:
         """
 
         class_bbox = dict()
-        for class_label in self.classes_list:
+        for class_label in classes_list:
             class_bbox.update({class_label: []})
 
-        obj_files = [FILE for FILE in self.anno.FILES]
+        obj_files = [FILE for FILE in anno.FILES]
         for obj_file in obj_files:
             for obj in obj_file.OBJECTS:
                 class_bbox[obj.CLASS].append(self._bbox_normalize(obj_file.IMAGE_WIDTH,
