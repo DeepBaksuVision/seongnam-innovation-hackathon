@@ -60,11 +60,11 @@ class BBoxDimensionAnalyzer:
         for obj_file in obj_files:
             for obj in obj_file.OBJECTS:
                 class_bbox[obj.CLASS].append(self._bbox_normalize(obj_file.IMAGE_WIDTH,
-                                                                          obj_file.IMAGE_HEIGHT,
-                                                                          obj.XMIN,
-                                                                          obj.YMIN,
-                                                                          obj.XMAX,
-                                                                          obj.YMAX))
+                                                                  obj_file.IMAGE_HEIGHT,
+                                                                  obj.XMIN,
+                                                                  obj.YMIN,
+                                                                  obj.XMAX,
+                                                                  obj.YMAX))
         return class_bbox
 
     @staticmethod
@@ -282,7 +282,7 @@ class BBoxAnalyzer:
             plt.xlim([0, 1])
             plt.ylim([0, 1])
             plt.legend()
-            
+
         if is_save is True:
             plt.savefig("Whole_Classes.png")
         plt.title("Whole_Classes")
@@ -350,11 +350,11 @@ class BBoxAnalyzer:
         for obj_file in obj_files:
             for obj in obj_file.OBJECTS:
                 class_bbox[obj.CLASS].append(self._bbox_normalize(obj_file.IMAGE_WIDTH,
-                                                                          obj_file.IMAGE_HEIGHT,
-                                                                          obj.XMIN,
-                                                                          obj.YMIN,
-                                                                          obj.XMAX,
-                                                                          obj.YMAX))
+                                                                  obj_file.IMAGE_HEIGHT,
+                                                                  obj.XMIN,
+                                                                  obj.YMIN,
+                                                                  obj.XMAX,
+                                                                  obj.YMAX))
         return class_bbox
 
     @staticmethod
