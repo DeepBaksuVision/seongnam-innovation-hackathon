@@ -112,9 +112,10 @@ class BBoxDimensionAnalyzer:
             data = self.bbox_data[classes]
 
             centroid_candidate = kmeans_plusplus_initializer.FARTHEST_CENTER_CANDIDATE
-            centroid_initializer = kmeans_plusplus_initializer(data=data,
-                                                               amount_centers=self.number_of_centroid,
-                                                               amount_candidates=centroid_candidate)
+            centroid_initializer = kmeans_plusplus_initializer(
+                data=data,
+                amount_centers=self.number_of_centroid,
+                amount_candidates=centroid_candidate)
             init_centroid = centroid_initializer.initialize()
 
             if self.distance_measure == 'iou':
@@ -149,10 +150,13 @@ class BBoxDimensionAnalyzer:
                                "it should be run `fit` function first")
 
         for classes in self.classes_list:
-            visualizer = cluster_visualizer(titles=["result of kmeans in class `{}`".format(classes)])
+            visualizer = cluster_visualizer(["result of kmeans in class `{}`".format(classes)])
             visualizer.append_cluster(self.bbox_data[classes])
-            visualizer.append_clusters(clusters=self.kmeans_result[classes]['clusters'], data=self.bbox_data[classes])
-            visualizer.append_cluster(self.kmeans_result[classes]['centers'], marker='*', markersize=10)
+            visualizer.append_clusters(clusters=self.kmeans_result[classes]['clusters'],
+                                       data=self.bbox_data[classes])
+            visualizer.append_cluster(self.kmeans_result[classes]['centers'],
+                                      marker='*',
+                                      markersize=10)
             visualizer.show(invisible_axis=False)
 
     @staticmethod
@@ -309,7 +313,7 @@ class BBoxAnalyzer:
         subplotsize = [int(floor_subplotsize) for _ in range(2)]
         plt.figure()
         for idx, class_label in enumerate(self.classes_list):
-            plt.subplot(subplotsize[0], subplotsize[1], idx+1)
+            plt.subplot(subplotsize[0], subplotsize[1], idx + 1)
             bbox_reshape = np.transpose(np.asarray(self.bbox_data[class_label]))
             plt.scatter(bbox_reshape[0], bbox_reshape[1], label=class_label)
             plt.xlim([0, 1])
