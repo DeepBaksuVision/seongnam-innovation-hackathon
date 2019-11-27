@@ -72,7 +72,10 @@ class DetectionObject(_BaseAnnoComponents):
         self.XMAX: int = int(object_info["xmax"])
         self.YMAX: int = int(object_info["ymax"])
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionObject
+        """
         print("\t\tclass:\t{}".format(self.CLASS))
         print("\t\txmin:\t{}".format(self.XMIN))
         print("\t\tymin:\t{}".format(self.YMIN))
@@ -122,7 +125,10 @@ class DetectionFile(_BaseAnnoComponents):
 
         return [DetectionObject(obj) for obj in objects]
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionFile
+        """
         print("\tfilepath:\t{}".format(self.FILEPATH))
         print("\timage width:\t{}".format(self.IMAGE_WIDTH))
         print("\timage height:\t{}".format(self.IMAGE_HEIGHT))
@@ -161,11 +167,24 @@ class DetectionAnnotations(_BaseAnnoComponents):
         self.FILES = self._parse_files(anno_info)
         self.FILES, self.NUMBER_OF_FILES = self._error_correction(self.FILES)
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionAnnotations
+        """
         print("\tnumber of files:\t{}".format(self.NUMBER_OF_FILES))
         [FILE.dump() for FILE in self.FILES]
 
     def _error_correction(self, files: List[DetectionFile]) -> Tuple[List[DetectionFile], int]:
+        """
+        check filepath overlap or not.
+        merge DetectionFile objects when detected filepath overlap
+
+        Args:
+            files (List[DetectionFile]) : Object contain detection object information
+
+        Returns:
+            (Tuple[List[DetectionFile], int])
+        """
         filepath_list = self._collect_filepath(files)
         unique_value = self._find_unique(filepath_list)
 
@@ -189,22 +208,24 @@ class DetectionAnnotations(_BaseAnnoComponents):
                     copied_obj = copy.deepcopy(obj)
                     files[overlap_indexs[0]].OBJECTS.append(copied_obj)
 
+                files[overlap_indexs[0]].NUMBER_OF_OBJECTS = len(files[overlap_indexs[0]].OBJECTS)
+
             for idx in overlap_indexs:
                 # preserve first index obj
                 if idx == overlap_indexs[0]:
                     continue
 
-                # Do not `del` keyword
-                # we have fixed overlap indexs
-                # overlap indexs change when we delete file in list
-                # if delete elements in list. it will be rearranged
+                # Do not use `del` keyword
+                # we have fixed `overlap indexs`
+                # `overlap indexs` will change when we delete file in list
+                # because delete elements in list. it will be rearranged
                 files[idx] = None
 
         files = [file for file in files if file is not None]
         return files, len(files)
 
     @staticmethod
-    def _find_index(container: List, value:str) -> List:
+    def _find_index(container: List, value: str) -> List:
         return [i for i, x in enumerate(container) if x == value]
 
     @staticmethod
