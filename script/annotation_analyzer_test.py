@@ -60,8 +60,3 @@ bbox_dimension_analyzer = BBoxDimensionAnalyzer(anno=detection_anno,
 prior_boxes = bbox_dimension_analyzer.fit()
 print("Prior_boxes : {}".format(prior_boxes))
 bbox_dimension_analyzer.report()
-
-
-
-
-
