@@ -1,7 +1,7 @@
 import csv
 from tqdm import tqdm
-from utils.bbox_distribution import AnnotationAnalyzer
-from utils.detection_annotations import DetectionAnnotations
+from utils.annotation_analyzer import ClassDistributionAnalyzer, BBoxAnalyzer, BBoxDimensionAnalyzer
+from utils.annotation_interfaces import DetectionAnnotations
 
 CSV_FILEPATH = "sample_data.csv"
 
@@ -37,7 +37,18 @@ with open(CSV_FILEPATH) as csvfile:
                             }]})
 
 detection_anno = DetectionAnnotations(annotations)
-anno_analyzer = AnnotationAnalyzer(detection_anno)
-anno_analyzer.show_class_distribution(is_save=False)
-anno_analyzer.show_bbox_distribution(each_class=True, is_save=False)
-anno_analyzer.show_bbox_distribution(each_class=False, is_save=False)
+
+class_analyzer = ClassDistributionAnalyzer(anno=detection_anno)
+class_analyzer.fit()
+class_analyzer.report(is_save=False)
+
+bbox_analyzer = BBoxAnalyzer(anno=detection_anno)
+bbox_analyzer.fit()
+bbox_analyzer.report(is_save=False)
+
+bbox_dimension_analyzer = BBoxDimensionAnalyzer(anno=detection_anno,
+                                                num_cetroid=5,
+                                                distance_measure='iou')
+prior_boxes = bbox_dimension_analyzer.fit()
+print("Prior_boxes : {}".format(prior_boxes))
+bbox_dimension_analyzer.report()
