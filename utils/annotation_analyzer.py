@@ -71,7 +71,8 @@ class BBoxDistributionAnalyzer:
 
         fmt = '.2f'
         thresh = similarity_matrix.max() / 2.
-        for i, j in itertools.product(range(similarity_matrix.shape[0]), range(similarity_matrix.shape[1])):
+        for i, j in itertools.product(range(similarity_matrix.shape[0]),
+                                      range(similarity_matrix.shape[1])):
             plt.text(j, i, format(similarity_matrix[i, j], fmt), horizontalalignment="center",
                      color="white" if similarity_matrix[i, j] > thresh else "black")
 
@@ -217,7 +218,8 @@ class BBoxDistributionAnalyzer:
 
     @staticmethod
     def _manhattan_distance(source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
-        return np.abs(source_vector[0] - target_vector[0]) + np.abs(source_vector[1] - target_vector[1])
+        return np.abs(source_vector[0] - target_vector[0]) + \
+               np.abs(source_vector[1] - target_vector[1])
 
     @staticmethod
     def _euclidean_distance(source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
@@ -225,7 +227,9 @@ class BBoxDistributionAnalyzer:
             np.power(source_vector[0] - target_vector[0], 2) +
             np.power(source_vector[1] - target_vector[1], 2))
 
-    def _cosine_similarity(self, source_vector: np.ndarray, target_vector: np.ndarray) -> np.ndarray:
+    def _cosine_similarity(self,
+                           source_vector: np.ndarray,
+                           target_vector: np.ndarray) -> np.ndarray:
         return self._inner_product(source_vector, target_vector) / \
                np.linalg.norm(source_vector, 2) * np.linalg.norm(target_vector, 2)
 
