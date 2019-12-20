@@ -1,6 +1,8 @@
+
 import numpy as np
 import copy
 from typing import List, Dict, Tuple
+
 
 """
 Object Detection Annotations Interface
@@ -243,7 +245,6 @@ class DetectionAnnotations(_BaseAnnoComponents):
     def _find_unique(filepath_list: List) -> List:
         return list(set(filepath_list))
 
-
 if __name__ == "__main__":
     # normal case
     case1 = [
@@ -360,7 +361,6 @@ if __name__ == "__main__":
                             }
                         ]
                 }
-
             ]
 
     # abnormal case2. missing filepath
