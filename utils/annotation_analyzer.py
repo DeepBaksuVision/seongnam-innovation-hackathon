@@ -307,14 +307,14 @@ class BBoxDimensionAnalyzer:
         self.kmeans_result = None
 
         # TODO should be implementation about calc similarity bbox distribution & merge
-
+        
     @staticmethod
     def _collect_classes(anno: DetectionAnnotations) -> List:
         objs = sum([FILE.OBJECTS for FILE in anno.FILES], [])
         classes_info = Counter([obj.CLASS for obj in objs])
 
         return list(classes_info.keys())
-
+      
     def _collect_bbox(self, anno: DetectionAnnotations, classes_list: List) -> Dict:
         """
         Args:
@@ -330,10 +330,12 @@ class BBoxDimensionAnalyzer:
         """
 
         class_bbox = dict()
+
         for class_label in classes_list:
             class_bbox.update({class_label: []})
 
         obj_files = [FILE for FILE in anno.FILES]
+        
         for obj_file in obj_files:
             for obj in obj_file.OBJECTS:
                 class_bbox[obj.CLASS].append(self._bbox_normalize(obj_file.IMAGE_WIDTH,
