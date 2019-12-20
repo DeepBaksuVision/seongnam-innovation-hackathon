@@ -1,4 +1,8 @@
-from typing import List, Dict
+
+import numpy as np
+import copy
+from typing import List, Dict, Tuple
+
 
 """
 Object Detection Annotations Interface
@@ -70,7 +74,10 @@ class DetectionObject(_BaseAnnoComponents):
         self.XMAX: int = int(object_info["xmax"])
         self.YMAX: int = int(object_info["ymax"])
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionObject
+        """
         print("\t\tclass:\t{}".format(self.CLASS))
         print("\t\txmin:\t{}".format(self.XMIN))
         print("\t\tymin:\t{}".format(self.YMIN))
@@ -120,7 +127,10 @@ class DetectionFile(_BaseAnnoComponents):
 
         return [DetectionObject(obj) for obj in objects]
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionFile
+        """
         print("\tfilepath:\t{}".format(self.FILEPATH))
         print("\timage width:\t{}".format(self.IMAGE_WIDTH))
         print("\timage height:\t{}".format(self.IMAGE_HEIGHT))
@@ -157,10 +167,68 @@ class DetectionAnnotations(_BaseAnnoComponents):
 
         self.NUMBER_OF_FILES = len(anno_info)
         self.FILES = self._parse_files(anno_info)
+        self.FILES, self.NUMBER_OF_FILES = self._error_correction(self.FILES)
 
-    def dump(self):
+    def dump(self) -> None:
+        """
+        print function for DetectionAnnotations
+        """
         print("\tnumber of files:\t{}".format(self.NUMBER_OF_FILES))
         [FILE.dump() for FILE in self.FILES]
+
+    def _error_correction(self, files: List[DetectionFile]) -> Tuple[List[DetectionFile], int]:
+        """
+        check filepath overlap or not.
+        merge DetectionFile objects when detected filepath overlap
+
+        Args:
+            files (List[DetectionFile]) : Object contain detection object information
+
+        Returns:
+            (Tuple[List[DetectionFile], int])
+        """
+        filepath_list = self._collect_filepath(files)
+        unique_value = self._find_unique(filepath_list)
+
+        if len(unique_value) == len(filepath_list):
+            return files, len(files)
+
+        for element in unique_value:
+            overlap_indexs = self._find_index(filepath_list, element)
+
+            if len(overlap_indexs) < 2:
+                continue
+
+            for idx in overlap_indexs:
+                # ignore first index. cause others objs copy into first index
+                # so, it should be preserved
+                if idx == overlap_indexs[0]:
+                    continue
+
+                # copy into first index obj
+                for obj in files[idx].OBJECTS:
+                    copied_obj = copy.deepcopy(obj)
+                    files[overlap_indexs[0]].OBJECTS.append(copied_obj)
+
+                files[overlap_indexs[0]].NUMBER_OF_OBJECTS = len(files[overlap_indexs[0]].OBJECTS)
+
+            for idx in overlap_indexs:
+                # preserve first index obj
+                if idx == overlap_indexs[0]:
+                    continue
+
+                # Do not use `del` keyword
+                # we have fixed `overlap indexs`
+                # `overlap indexs` will change when we delete file in list
+                # because delete elements in list. it will be rearranged
+                files[idx] = None
+
+        files = [file for file in files if file is not None]
+        return files, len(files)
+
+    @staticmethod
+    def _find_index(container: List, value: str) -> List:
+        return [i for i, x in enumerate(container) if x == value]
 
     @staticmethod
     def _parse_files(anno_info: List):
@@ -169,17 +237,24 @@ class DetectionAnnotations(_BaseAnnoComponents):
         """
         return [DetectionFile(anno) for anno in anno_info]
 
+    @staticmethod
+    def _collect_filepath(files: List[DetectionFile]) -> List:
+        return [file.FILEPATH for file in files]
+
+    @staticmethod
+    def _find_unique(filepath_list: List) -> List:
+        return list(set(filepath_list))
 
 if __name__ == "__main__":
     # normal case
     case1 = [
                 {
-                    "filepath": "",
+                    "filepath": "a",
                     "image_width": 0,
                     "image_height": 0,
                     "objects": [
                             {
-                                "class": "",
+                                "class": "a",
                                 "xmin": 0,
                                 "ymin": 0,
                                 "xmax": 0,
@@ -187,7 +262,7 @@ if __name__ == "__main__":
                             },
 
                             {
-                                "class": "",
+                                "class": "a",
                                 "xmin": 0,
                                 "ymin": 0,
                                 "xmax": 0,
@@ -195,7 +270,7 @@ if __name__ == "__main__":
                             },
 
                             {
-                                "class": "",
+                                "class": "b",
                                 "xmin": 0,
                                 "ymin": 0,
                                 "xmax": 0,
@@ -205,13 +280,80 @@ if __name__ == "__main__":
                 },
 
                 {
-                    "filepath": "",
+                    "filepath": "b",
                     "image_width": 0,
                     "image_height": 0,
                     "objects":
                         [
                             {
-                                "class": "",
+                                "class": "b",
+                                "xmin": 0,
+                                "ymin": 0,
+                                "xmax": 0,
+                                "ymax": 0
+                            }
+                        ]
+                },
+                {
+                    "filepath": "a",
+                    "image_width": 0,
+                    "image_height": 0,
+                    "objects":
+                        [
+                            {
+                                "class": "c",
+                                "xmin": 0,
+                                "ymin": 0,
+                                "xmax": 0,
+                                "ymax": 0
+                            }
+                        ]
+                },
+                {
+                    "filepath": "a",
+                    "image_width": 0,
+                    "image_height": 0,
+                    "objects":
+                        [
+                            {
+                                "class": "a",
+                                "xmin": 0,
+                                "ymin": 0,
+                                "xmax": 0,
+                                "ymax": 0
+                            }
+                        ]
+                },
+                {
+                    "filepath": "a",
+                    "image_width": 0,
+                    "image_height": 0,
+                    "objects":
+                        [
+                            {
+                                "class": "a",
+                                "xmin": 0,
+                                "ymin": 0,
+                                "xmax": 0,
+                                "ymax": 0
+                            },
+                            {
+                                "class": "c",
+                                "xmin": 0,
+                                "ymin": 0,
+                                "xmax": 0,
+                                "ymax": 0
+                            }
+                        ]
+                },
+                {
+                    "filepath": "c",
+                    "image_width": 0,
+                    "image_height": 0,
+                    "objects":
+                        [
+                            {
+                                "class": "a",
                                 "xmin": 0,
                                 "ymin": 0,
                                 "xmax": 0,
@@ -314,25 +456,31 @@ if __name__ == "__main__":
 
     # abnormal case4 missing whole annotations
     case4 = []
+
     try:
+        # parsing logic test
+        # Correct Error logic test
         annotations = DetectionAnnotations(case1)
         annotations.dump()
     except Exception as e:
         print(e)
 
     try:
+        # key `filepath` missing in DetectionFile object
         annotations = DetectionAnnotations(case2)
         annotations.dump()
     except Exception as e:
         print(e)
 
     try:
+        # key `class` missing in DetectionObject
         annotations = DetectionAnnotations(case3)
         annotations.dump()
     except Exception as e:
         print(e)
 
     try:
+        # empty list
         annotations = DetectionAnnotations(case4)
         annotations.dump()
     except Exception as e:
